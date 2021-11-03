@@ -212,24 +212,30 @@ def getRangeShardKeySplitPoints(db, originalCollname, shardKeyFields):
         return
 
     splitPoints = []
-
+    firstShardKeyField = shardKeyFields[0]
+    
     # Want to split only on first field in shard key (not further fields if compound
     typePipeline = [
       {"$limit": 1},
       {"$project": {
         "_id": 0,
-        "type": {"$type": "$" + shardKeyFields[0]},
+        "type": {"$type": "$" + firstShardKeyField},
       }},
     ]
 
     firstRecord = db[originalCollname].aggregate(typePipeline).next()
     type = firstRecord["type"]
 
+    if type == "missing":
+        sys.exit(f"ERROR: Shard key field '{firstShardKeyField}' is not present in one or more "
+                 f"documents in the source collection '{originalCollname}' and hence cannot be "
+                 f"used as part or all of the shard key definition.\n")
+    
     # Only makes sense to split on specific types (e.g. not boolean which can have only 2 values)
     if type in ["string", "date", "int", "double", "long", "timestamp", "decimal"]:
         splitPointsPipeline = [
           {"$bucketAuto": {
-            "groupBy": f"${shardKeyFields[0]}", "buckets": TARGET_SPLIT_POINTS_AMOUNT
+            "groupBy": f"${firstShardKeyField}", "buckets": TARGET_SPLIT_POINTS_AMOUNT
           }},
 
           {"$group": {
