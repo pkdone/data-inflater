@@ -25,13 +25,13 @@ Ensure the '.py' script is executable and then execute the following to view the
 ./data-inflater.py -h
 ```
 
-Execute the following to connect to a locally running _single-server_ database (default port) to copy and expand the data from an existing source collection, `mydb.mySrcColl`, to an a new collection, `mydb.myDestColl`, which will contain 1 million records:
+Execute the following to connect to a locally running __single server__ database (default port) to copy and expand the data from an existing source collection, `mydb.mySrcColl`, to an a new collection, `mydb.myDestColl`, which will contain 1 million records:
 
 ```console
 ./data-inflater.py --url 'mongodb://localhost:27017' -d 'mydb' -c 'mySrcColl' -t 'myDestColl' -s 1000000
 ```
 
-Execute the following to connect to an Atlas cluster (ensure you've already loaded the [Atlas sample data set](https://docs.atlas.mongodb.com/sample-data/)), to inflate the data from the source `movies` collection to the new `movies_big` collection, which will contain 100 million records (note, first change the URL to match the URL of your Atlas cluster):
+Execute the following to connect to an __Atlas cluster__ (ensure you've already loaded the [Atlas sample data set](https://docs.atlas.mongodb.com/sample-data/)), to inflate the data from the source `movies` collection to the new `movies_big` collection, which will contain 100 million records (note, first change the URL to match the URL of your Atlas cluster):
 
 ```console
 ./data-inflater.py --url 'mongodb+srv://usr:pwd@mycluster.abcd.mongodb.net/'
