@@ -31,7 +31,7 @@ Execute the following to connect to a locally running __single server__ database
 ./data-inflater.py --url 'mongodb://localhost:27017' -d 'mydb' -c 'mySrcColl' -t 'myDestColl' -s 1000000
 ```
 
-Execute the following to connect to an __Atlas cluster__ (ensure you've already loaded the [Atlas sample data set](https://docs.atlas.mongodb.com/sample-data/)), to inflate the data from the source `movies` collection to the new `movies_big` collection, which will contain 100 million records (note, first change the URL to match the URL of your Atlas cluster):
+Execute the following to connect to an __Atlas cluster__ (ensure you've already loaded the [Atlas sample data set](https://docs.atlas.mongodb.com/sample-data/)), to inflate the data from the source `movies` collection to the new `movies_big` collection, which will contain 100 million records (note, first change the URL username, password and hostname to match the URL of your Atlas cluster):
 
 ```console
 ./data-inflater.py --url 'mongodb+srv://usr:pwd@mycluster.abcd.mongodb.net/'
