@@ -11,8 +11,7 @@
 # Example:
 #  $ ./data-inflater --url 'mongodb+srv://usr:pwd@mycluster.abc.mongodb.net/' -s 1000000
 #
-# Prerequisites:
-# * Install PyMongo driver, eg:
+# Prerequisites: Python 3.8+ and the PyMongo driver - example to install:
 #  $ pip3 install --user pymongo
 ##
 import sys
@@ -102,13 +101,13 @@ def run(url, dbname, collname, target, size, compression, shardKeyFields):
         rangeShardKeySplits = getRangeShardKeySplitPoints(db, collname, shardKeyFields)
 
     # Create final collection now in case it's sharded and pre-splitting - want enough time for
-    # balancer to spread out the split chunks before colleciton comes under intense ingestion load
+    # balancer to spread out the split chunks before collection comes under intense ingestion load
     createCollection(adminDB, db, target, compression, isClusterSharded, shardKeyFields,
                      rangeShardKeySplits, size, True)
     print()
 
-    # Example, source colleciton may thousands of documents but desitnaiton needs to be billions
-    # (6 order of magnitude differnce)
+    # See how many magnitudes difference there is. For example, source collection may thousands of"
+    # documents but destination needs to be billions (6 order of magnitude difference)
     magnitudesOfDifference = (math.floor(math.log10(size)) -
                               math.ceil(math.log10(originalAmountAvailable)))
     sourceAmountAvailable = originalAmountAvailable
@@ -128,7 +127,7 @@ def run(url, dbname, collname, target, size, compression, shardKeyFields):
         tempCollectionsToRemove.append(srcCollName)
         srcCollName = tgtCollName
 
-    # For target collectionwith range shard key pre-spliting, wait for chunks to be balanced
+    # For target collection with range shard key pre-spliting, wait for chunks to be balanced
     if rangeShardKeySplits:
         waitForPresplitChunksToBeBalanced(configDB, dbname, target)
 
@@ -179,7 +178,7 @@ def expandToNewCollection(url, db, srcCollName, tgtCollName, srcSize, tgtSize):
 
 
 ##
-# Execute each final aggreation pipeline in own OS process (hence must re-establish MongoClient
+# Execute each final aggregation pipeline in own OS process (hence must re-establish MongoClient
 # connection for each process as pymongo connections can't be shared across processes)
 ##
 def executeCopyAggPipeline(url, dbName, srcCollName, tgtCollName, limit):
@@ -205,7 +204,7 @@ def executeCopyAggPipeline(url, dbName, srcCollName, tgtCollName, limit):
 
 
 ##
-# Analyse the original source collecton for its natural split of ranges using an aggregation
+# Analyse the original source collection for its natural split of ranges using an aggregation
 # $bucketAuto operator.
 ##
 def getRangeShardKeySplitPoints(db, originalCollname, shardKeyFields):
@@ -268,7 +267,7 @@ def createCollection(adminDB, db, collName, compression, isClusterSharded, shard
     doShardCollection = True if (isClusterSharded and (isFinalCollection or
                                  (indtendedSize >= LARGE_COLLN_COUNT_THRESHOLD))) else False
 
-    # Create the colleciton a specific compression algorithm
+    # Create the collection a specific compression algorithm
     db.create_collection(collName, storageEngine={"wiredTiger":
                          {"configString": f"block_compressor={compression}"}})
 
@@ -288,7 +287,7 @@ def createCollection(adminDB, db, collName, compression, isClusterSharded, shard
             for field in shardKeyFields:
                 keyFieldOrders[field] = 1
 
-            # Configure range based shard key whic is pre-split
+            # Configure range based shard key which is pre-split
             adminDB.command("shardCollection", f"{db.name}.{collName}", key=keyFieldOrders)
 
             if rangeShardKeySplits:
@@ -324,7 +323,7 @@ def createCollection(adminDB, db, collName, compression, isClusterSharded, shard
 
 
 ##
-# If the target colleciton is sharded with a range shard key and has been pre-split, wait for the
+# If the target collection is sharded with a range shard key and has been pre-split, wait for the
 # chunks to be balanced before subsequently doing inserts, to help maximise subsequent performance.
 ##
 def waitForPresplitChunksToBeBalanced(configDB, dbName, collName):
@@ -381,7 +380,7 @@ def waitForPresplitChunksToBeBalanced(configDB, dbName, collName):
     if collectionIsImbalanced:
         print(f" WARNING: Exceeded maximum threshold ({MAX_WAIT_TIME_FOR_CHUNKS_BALANCE_SECS} "
               f"secs) waiting for sharded collection to evenly balance (current difference: "
-              f"{lastChunkCountDifference}) - subsequent cluster performnace may be degraded "
+              f"{lastChunkCountDifference}) - subsequent cluster performance may be degraded "
               f"for a while")
     else:
         print(f" BALANCED. Sharded collection with range key pre-split chunks is now "
@@ -421,8 +420,7 @@ def printSummary(db, srcCollName, tgtCollName, compression):
 ##
 def printCollectionData(db, collName):
     collstats = db.command("collstats", collName)
-    # pprint(collstats)
-    print(f" Collecton name: {collName}")
+    print(f" Colleton name: {collName}")
     print(f" Sharded collection: {'sharded' in collstats}")
     print(f" Average object size: {int(collstats['avgObjSize'])}")
     print(f" Docs amount: {db[collName].count_documents({})}")
