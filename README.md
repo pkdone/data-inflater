@@ -13,7 +13,7 @@ If deployed to a sharded cluster, the utility will ensure the target collection 
 
 In a running MongoDB cluster (self-managed or running in Atlas), ensure you have created and populated a source collection with at least a few sample records in it (ideally more), with varying values for the fields across the different documents, to reflect the shape and variance you desire.
 
-Ensure Python3 (version 3.8 or greater) and the MongoDB Python Driver ((pymongo](https://docs.mongodb.com/drivers/pymongo/)) are already installed on your workstation. Example to install _pymongo_:
+Ensure Python3 (version 3.8 or greater) and the MongoDB Python Driver ([pymongo](https://docs.mongodb.com/drivers/pymongo/)) are already installed on your workstation. Example to install _pymongo_:
 
 ```console
 pip3 install --user pymongo
