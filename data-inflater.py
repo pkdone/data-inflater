@@ -27,7 +27,7 @@ from multiprocessing import Process
 
 
 ##
-# Main function to parse passed-in process before invoking the core processing function
+# Main function to parse the passed-in parameters before invoking the core processing function.
 ##
 def main():
     argparser = argparse.ArgumentParser(
@@ -71,7 +71,7 @@ def main():
 
 ##
 # Executes the data copying process using intermediate collections to step up the order of
-# magnitude of size of data collection
+# magnitude of size of the data set.
 ##
 def run(url, dbname, collname, target, size, compression, shardKeyFields):
     print(f"\nConnecting to MongoDB using URL '{url}' "
@@ -96,25 +96,25 @@ def run(url, dbname, collname, target, size, compression, shardKeyFields):
         sys.exit(f"ERROR: Source collection '{dbname}.{collname}' must contain at least one "
                  f"record but it is empty")
 
-    # If sharded with range based shark key see if can get a list of pre-split points
+    # If sharded with range based shark key, see if can get a list of pre-split points
     if isClusterSharded and shardKeyFields:
         rangeShardKeySplits = getRangeShardKeySplitPoints(db, collname, shardKeyFields)
 
-    # Create final collection now in case it's sharded and pre-splitting - want enough time for
-    # balancer to spread out the split chunks before collection comes under intense ingestion load
+    # Create final collection now in case it's sharded and has pre-split chunks - want enough time
+    # for balancer to spread out the chunks before it comes under intense ingestion load
     createCollection(adminDB, db, target, compression, isClusterSharded, shardKeyFields,
                      rangeShardKeySplits, size, True)
     print()
 
-    # See how many magnitudes difference there is. For example, source collection may thousands of"
-    # documents but destination needs to be billions (6 order of magnitude difference)
+    # See how many magnitudes difference there is. For example, source collection may thousands of
+    # documents but destination may need to be billions (i.e. 6 order of magnitude difference)
     magnitudesOfDifference = (math.floor(math.log10(size)) -
                               math.ceil(math.log10(originalAmountAvailable)))
     sourceAmountAvailable = originalAmountAvailable
     srcCollName = collname
     tempCollectionsToRemove = []
 
-    # Loop inflating by an order of magnitude each time (if there is that much difference)
+    # Loop inflating by an order of magnitude each time (if there really is such a difference)
     for magnitudeDifference in range(0, magnitudesOfDifference):
         tgtCollName = f"{collname}_{magnitudeDifference}"
         ceilingAmount = (10 ** (math.ceil(math.log10(originalAmountAvailable)) +
@@ -127,11 +127,11 @@ def run(url, dbname, collname, target, size, compression, shardKeyFields):
         tempCollectionsToRemove.append(srcCollName)
         srcCollName = tgtCollName
 
-    # For target collection with range shard key pre-spliting, wait for chunks to be balanced
+    # If target collection uses range shard key pre-spliting, wait for the chunks to be balanced
     if rangeShardKeySplits:
         waitForPresplitChunksToBeBalanced(configDB, dbname, target)
 
-    # Do final inflation level and print summary
+    # Do final inflation to the final collection and print summary
     expandToNewCollection(url, db, srcCollName, target, sourceAmountAvailable, size)
     tempCollectionsToRemove.append(srcCollName)
     end = datetime.now()
@@ -152,7 +152,7 @@ def run(url, dbname, collname, target, size, compression, shardKeyFields):
 
 ##
 # For a specific order of magnitude expansion, create a new larger source collection using data
-# from the source collection
+# from the source collection.
 ##
 def expandToNewCollection(url, db, srcCollName, tgtCollName, srcSize, tgtSize):
     srcColl = db[srcCollName]
@@ -178,8 +178,8 @@ def expandToNewCollection(url, db, srcCollName, tgtCollName, srcSize, tgtSize):
 
 
 ##
-# Execute each final aggregation pipeline in own OS process (hence must re-establish MongoClient
-# connection for each process as pymongo connections can't be shared across processes)
+# Execute each final aggregation pipeline in its own OS process (hence must re-establish
+# MongoClient connection for each process as PyMongo connections can't be shared across processes).
 ##
 def executeCopyAggPipeline(url, dbName, srcCollName, tgtCollName, limit):
     print("[", end="", flush=True)
@@ -258,7 +258,7 @@ def getRangeShardKeySplitPoints(db, originalCollname, shardKeyFields):
 
 
 ##
-# Create a collection and make it sharded if running against a sharded cluster
+# Create a collection and make it sharded if we are running against a sharded cluster.
 ##
 def createCollection(adminDB, db, collName, compression, isClusterSharded, shardKeyFields,
                      rangeShardKeySplits, indtendedSize, isFinalCollection):
@@ -389,7 +389,7 @@ def waitForPresplitChunksToBeBalanced(configDB, dbName, collName):
 
 
 ##
-# Drop all temporary collections used
+# Drop all temporary collections used.
 ##
 def removeTempCollections(db, collectionNames):
     for coll in collectionNames:
@@ -397,7 +397,7 @@ def removeTempCollections(db, collectionNames):
 
 
 ##
-# Drop collection
+# Drop collection.
 ##
 def dropCollection(db, coll):
     print(f" DROP. Removing existing collection: '{coll}'")
@@ -405,7 +405,7 @@ def dropCollection(db, coll):
 
 
 ##
-# Print summary of source and target collection statistics
+# Print summary of source and target collection statistics.
 ##
 def printSummary(db, srcCollName, tgtCollName, compression):
     print("Original collection statistics:")
@@ -416,7 +416,7 @@ def printSummary(db, srcCollName, tgtCollName, compression):
 
 
 ##
-# Print summary stats for a collection
+# Print summary stats for a collection.
 ##
 def printCollectionData(db, collName):
     collstats = db.command("collstats", collName)
@@ -432,7 +432,7 @@ def printCollectionData(db, collName):
 
 
 ##
-# Spawns multiple process, each running an aggregation in parallel against a batch records from a
+# Spawn multiple process, each running an aggregation in parallel against a batch of records from a
 # source collection.
 #
 # The 'funcToParallelise' argument should have the following signature:
