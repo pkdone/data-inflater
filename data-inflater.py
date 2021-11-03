@@ -32,22 +32,13 @@ from multiprocessing import Process
 ##
 def main():
     argparser = argparse.ArgumentParser(
-        description="MongoDB utility to automate the creation of a new large database collection "
-                    "using data sourced from an existing smaller database collection. By default, "
-                    "the utility will try to use the Atlas 'sample data set' database collection "
-                    "'sample_mflix.movies' as the source collection but this can be overridden to "
-                    "use any database and collection of your choice. The resulting collection "
-                    "will contain documents with duplicated data, but with new unique _id's. The "
-                    "ratio of variance in the new collection will approximately reflect the ratio "
-                    "of variance in the source collection. Therefore, it is recommended to have "
-                    "at least a few different documents (if not a few hundred or thousand different"
-                    " documents) in the source collection you supply. If deployed to a sharded "
-                    "cluster, the utility will ensure the target collection is sharded with a "
-                    "shard key, and where it can, will pre-split the chunks, to avoid subsequent "
-                    "needless balancer overhead. The utility issues multiple aggregation processes"
-                    " to perform copies of batches of records in parallel for increased "
-                    "performance. For more information on configuring the Atlas sample data set, "
-                    "see: https://docs.atlas.mongodb.com/sample-data/")
+        description="MongoDB utility to inflate the contents of a small collection into a new "
+                    "larger collection. Due to using data sourced from an existing collection, "
+                    "the resulting collection will contain duplicated documents, but with new "
+                    "unique _id's. The ratio of variance in the new collection will approximately "
+                    "reflect the ratio of variance in the source collection. It is recommended to "
+                    "store at least a few different documents (if not a few hundred/thousand) in "
+                    "the source collection you provide.")
     argparser.add_argument("-m", "--url", default=DEFAULT_MONGODB_URL,
                            help=f"MongoDB cluster URL (default: {DEFAULT_MONGODB_URL})")
     argparser.add_argument("-d", "--db", default=DEFAULT_DBNAME,
