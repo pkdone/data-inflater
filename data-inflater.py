@@ -171,8 +171,8 @@ def expandToNewCollection(url, db, srcCollName, tgtCollName, srcSize, tgtSize):
 
     if DO_PROPER_RUN:
         print("  |-> ", end="", flush=True)
-        spawanAggBatchProcesses(aggBatchSizes, executeCopyAggPipeline, url, db.name, srcCollName,
-                                tgtCollName)
+        spawnBatchProcesses(aggBatchSizes, executeCopyAggPipeline, url, db.name, srcCollName,
+                            tgtCollName)
 
     print("\n")
 
@@ -213,7 +213,7 @@ def getRangeShardKeySplitPoints(db, originalCollname, shardKeyFields):
 
     splitPoints = []
     firstShardKeyField = shardKeyFields[0]
-    
+
     # Want to split only on first field in shard key (not further fields if this is compound key)
     typePipeline = [
       {"$limit": 1},
@@ -230,7 +230,7 @@ def getRangeShardKeySplitPoints(db, originalCollname, shardKeyFields):
         sys.exit(f"ERROR: Shard key field '{firstShardKeyField}' is not present in one or more "
                  f"documents in the source collection '{originalCollname}' and hence cannot be "
                  f"used as part or all of the shard key definition.\n")
-    
+
     # Only makes sense to split on specific types (e.g. not boolean which can have only 2 values)
     if type in ["string", "date", "int", "double", "long", "timestamp", "decimal"]:
         splitPointsPipeline = [
@@ -438,19 +438,19 @@ def printCollectionData(db, collName):
 
 
 ##
-# Spawn multiple process, each running an aggregation in parallel against a batch of records from a
-# source collection.
+# Spawn multiple process, each running a piece or work in parallel against a batch of records from
+# a source collection.
 #
 # The 'funcToParallelise' argument should have the following signature:
 #     myfunc(*args, limit)
 # E.g.:
 #     myfunc(url, dbName, srcCollName, tgtCollName, limit)
 ##
-def spawanAggBatchProcesses(aggBatchSizes, funcToParallelise, *args):
+def spawnBatchProcesses(batchSizes, funcToParallelise, *args):
     processesList = []
 
-    # Create a set of OS processes to perform each of the aggregations in the batch in parallel
-    for batchSize in aggBatchSizes:
+    # Create a set of OS processes to perform each batch job in parallel
+    for batchSize in batchSizes:
         process = Process(target=wrapperProcessWithKeyboardException, args=(funcToParallelise,
                           *args, batchSize))
         processesList.append(process)
