@@ -214,7 +214,7 @@ def getRangeShardKeySplitPoints(db, originalCollname, shardKeyFields):
     splitPoints = []
     firstShardKeyField = shardKeyFields[0]
     
-    # Want to split only on first field in shard key (not further fields if compound
+    # Want to split only on first field in shard key (not further fields if this is compound key)
     typePipeline = [
       {"$limit": 1},
       {"$project": {
@@ -426,7 +426,7 @@ def printSummary(db, srcCollName, tgtCollName, compression):
 ##
 def printCollectionData(db, collName):
     collstats = db.command("collstats", collName)
-    print(f" Colleton name: {collName}")
+    print(f" Collecton name: {collName}")
     print(f" Sharded collection: {'sharded' in collstats}")
     print(f" Average object size: {int(collstats['avgObjSize'])}")
     print(f" Docs amount: {db[collName].count_documents({})}")
